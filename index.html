@@ -339,6 +339,46 @@ a:hover{text-decoration-color:#000}
 .mchart{height:230px}
 .numbers{background:var(--sunk)}
 .paper,.mgroup,.trybar,.slip{box-shadow:var(--shadow)}
+
+.follow{position:relative;z-index:1;margin:22px 0 0}
+.follow-h{display:block;font-size:12.5px;color:#98989D;margin-bottom:8px}
+.follow-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.follow-chips::-webkit-scrollbar{display:none}
+.fchip{flex:none;background:transparent;color:#fff;border:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);border-radius:999px;padding:6px 13px;font-size:13px;white-space:nowrap;transition:background .25s,color .25s}
+.fchip:hover{box-shadow:inset 0 0 0 1px #fff}
+.fchip[aria-pressed="true"]{background:#fff;color:#000;box-shadow:none}
+.mgroup.mine{box-shadow:0 0 0 2px #000}
+.mact{margin:10px 0 2px;flex-wrap:wrap}
+.ahead{margin:34px 0 0}
+.ahead h2,.lhead h1{font-family:var(--display);letter-spacing:-.03em}
+.ahead h2{font-size:24px;font-weight:650;margin:0 0 14px}
+.ahead-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ahead-i{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"d t" "d w";gap:4px 16px;align-items:start;text-align:left;background:var(--surface);border:0;box-shadow:var(--shadow);border-radius:18px;padding:16px 18px;transition:background .25s}
+.ahead-i:hover{background:var(--sunk)}
+.ah-d{grid-area:d;display:flex;flex-direction:column;align-items:center;min-width:44px;font-size:12px;color:var(--muted)}
+.ah-d b{font-family:var(--display);font-size:30px;font-weight:650;letter-spacing:-.03em;line-height:1;color:var(--ink)}
+.ah-t{grid-area:t;font-size:14.5px;line-height:1.3;font-weight:500}
+.ah-w{grid-area:w;font-size:12.5px;color:var(--muted)}
+.whatif{margin-top:16px}
+.wi-l{display:block;font-size:13px;color:var(--muted);margin:18px 0 6px}
+#wi-range{width:100%;accent-color:#000}
+.two.one{grid-template-columns:1fr;margin-top:16px}
+.lhead{padding-bottom:18px}
+.lprog{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden;max-width:420px}
+.lprog span{display:block;height:100%;background:#000;border-radius:99px;transition:width .6s var(--ease)}
+.lessons{display:flex;flex-direction:column;gap:10px;max-width:820px;margin-bottom:60px}
+.lesson{box-shadow:var(--shadow);border-radius:18px;overflow:hidden}
+.lesson-h{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:18px 20px}
+.lesson-h:hover{background:var(--sunk)}
+.lnum{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:600;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+.lesson.ok .lnum{background:#000;color:#fff;box-shadow:none}
+.ltitle{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.015em}
+.lmin{font-size:12.5px;color:var(--muted)}
+.lesson-b{padding:0 20px 20px 66px}
+.lesson-b ol{margin:0 0 16px;padding-left:18px;display:flex;flex-direction:column;gap:12px;max-width:62ch}
+.lesson-b li{line-height:1.5}
+.lesson-b .row{flex-wrap:wrap}
+@media (max-width:880px){.lesson-b{padding-left:20px}}
 @media (max-width:880px){.mback{display:none}.mchart{height:170px}}
 </style>
 <meta name="robots" content="noindex">
@@ -357,6 +397,7 @@ a:hover{text-decoration-color:#000}
     <button data-view="briefing">Events<span class="n" id="n-briefs"></span></button>
     <button data-view="checkpoints">Checkpoints<span class="n" id="n-open"></span></button>
     <button data-view="exposure">My exposure<span class="n" id="n-wl"></span></button>
+    <button data-view="learn">Learn<span class="n" id="n-learn"></span></button>
     <button data-view="method">How it works</button>
   </nav>
 </div></header>
@@ -369,9 +410,9 @@ a:hover{text-decoration-color:#000}
 <script>
 (function(){
 "use strict";
-var S={markets:{},msel:null,mq:"",tryKind:"fixed_borrowing",tryAmount:"500000",items:[],moves:{},itemErr:"",briefs:[],loaded:false,loadNote:"",sel:null,cat:"All",q:"",mine:false,view:"briefing",wl:[],saved:[],draft:"",result:null,busy:false,err:"",db:null,uid:null,sample:null,canSave:false,desc:"",descDraft:null,descBusy:false,lens:{},lensBusy:null,lensErr:"",lensFor:null,saveNote:"",runs:[],auto:null,runsLoaded:false,gone:{terms:[],briefs:[]}};
+var S={watch:[],learned:{},lesson:null,wiKind:"fixed_borrowing",wiAmount:"500000",wiMove:null,markets:{},msel:null,mq:"",tryKind:"fixed_borrowing",tryAmount:"500000",items:[],moves:{},itemErr:"",briefs:[],loaded:false,loadNote:"",sel:null,cat:"All",q:"",mine:false,view:"briefing",wl:[],saved:[],draft:"",result:null,busy:false,err:"",db:null,uid:null,sample:null,canSave:false,desc:"",descDraft:null,descBusy:false,lens:{},lensBusy:null,lensErr:"",lensFor:null,saveNote:"",runs:[],auto:null,runsLoaded:false,gone:{terms:[],briefs:[]}};
 var IMP={favorable:["fav","▲","Favorable"],adverse:["adv","▼","Adverse"],mixed:["mix","◆","Mixed"],undetermined:["und","○","Undetermined"]};
-var VIEWS=["markets","briefing","checkpoints","exposure","method"];
+var VIEWS=["markets","briefing","checkpoints","exposure","learn","method"];
 var $=function(id){return document.getElementById(id)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function imp(k){return IMP[k]||IMP.undetermined}
@@ -728,11 +769,9 @@ function mChart(m){
     '<span class="mdot" style="left:100%;top:'+(xy[n-1][1]/H*100).toFixed(1)+'%"></span><span class="mcur" hidden></span></div>';
 }
 function mHeadline(){
-  var out=[],M=S.markets,sp=M.sp500,ty=M.us10y,eu=M.eurusd;
-  if(sp&&sp.series){var a=mChange(sp,0);out.push({id:"sp500",lead:"Stocks "+(a.v<0?"fell":a.v>0?"rose":"held"),num:Math.abs(a.v).toFixed(2)+"%",dir:mDir(a.v)})}
-  if(ty&&ty.series){var b=mChange(ty,0);out.push({id:"us10y",lead:"Long-term rates "+(b.v>0?"climbed":b.v<0?"eased":"held"),num:Math.abs(b.v).toFixed(2)+" points",dir:mDir(b.v)})}
-  if(eu&&eu.series){var f=eu.series[0][1],l=mLast(eu)[1],g=l?(f/l-1)*100:0;out.push({id:"eurusd",lead:"The dollar "+(g>0?"gained":g<0?"lost":"held"),num:Math.abs(g).toFixed(2)+"%",tail:" on the euro",dir:mDir(g)})}
-  return out;
+  var ids=watched().filter(function(id){return S.markets[id].kind!=="stat"}).slice(0,3);
+  if(!ids.length)ids=["sp500","us10y","eurusd"].filter(function(id){return S.markets[id]&&S.markets[id].series});
+  return ids.map(function(id){var m=S.markets[id];m.id=id;return mClause(m)});
 }
 function mHero(){
   var cl=mHeadline(),list=mList().filter(function(m){return m.kind!=="stat"});
@@ -742,7 +781,7 @@ function mHero(){
   return '<section class="mhero" aria-labelledby="mh1">'+bg+'<h1 id="mh1">'+(cl.length?cl.map(function(c,i){return '<button class="clause" data-market="'+esc(c.id)+'" style="--i:'+i+'">'+esc(c.lead)+' <span class="'+c.dir+'">'+esc(c.num)+"</span>"+esc(c.tail||"")+".</button>"}).join(" "):"The market in plain words.")+"</h1>"+
     '<p class="mwhen">'+(from?"From "+esc(fmtDate(from))+" to "+esc(fmtDate(to))+". ":"")+"Closing values entered by hand from the source named on each market. Not real time. Colour shows direction, not good or bad.</p>"+
     '<div class="cmd"><label class="sr" for="mq">Search markets, companies and events</label><input class="search" id="mq" type="search" autocomplete="off" placeholder="Search a market, a company or a theme: 10-year, dollar, Nvidia, inflation…" value="'+esc(S.mq||"")+'"><div id="mq-out" aria-live="polite">'+mSearch()+"</div></div>"+
-    (tape?'<div class="tape" aria-hidden="true"><div class="tape-run">'+tape+tape+"</div></div>":"")+"</section>";
+    followRow()+(tape?'<div class="tape" aria-hidden="true"><div class="tape-run">'+tape+tape+"</div></div>":"")+"</section>";
 }
 function mRelated(m){var ids=arr(m.related).map(String);return all().filter(function(b){return !b.private&&ids.indexOf(b.id)>=0})}
 function mDetail(m){
@@ -751,7 +790,7 @@ function mDetail(m){
   next.sort(function(a,b){return String(a.w.due).localeCompare(String(b.w.due))});
   var seen={};next=next.filter(function(n){var k=n.w.due+"|"+n.w.text;if(seen[k])return false;seen[k]=1;return true}).slice(0,4);
   var basis={official:"Official figure",provider:"Published by the index or data provider",reported:"As reported by press"}[m.basis];
-  var head='<article class="paper mdetail"><div class="meta"><span>'+esc(m.group)+"</span><span>"+esc(basis)+"</span></div><h2>"+esc(m.name)+"</h2>";
+  var head='<article class="paper mdetail"><div class="meta"><span>'+esc(m.group)+"</span><span>"+esc(basis)+"</span></div><h2>"+esc(m.name)+'</h2><div class="row mact"><button class="btn'+(S.watch.indexOf(m.id)>=0?"":" ghost")+'" data-follow="'+esc(m.id)+'" aria-pressed="'+(S.watch.indexOf(m.id)>=0)+'">'+(S.watch.indexOf(m.id)>=0?"\u2713 In my list":"+ Add to my list")+"</button>"+(lessonFor(m.id)?'<button class="btn ghost" data-lesson="'+lessonFor(m.id).id+'">Learn: '+esc(lessonFor(m.id).title)+" \u00B7 "+lessonFor(m.id).min+" min</button>":"")+"</div>";
   var body;
   if(m.kind==="stat")body='<p class="mbig">'+esc(m.valueText)+'</p><p class="note">'+esc(m.note||"")+" As of "+esc(fmtDate(m.asOf))+".</p>";
   else{
@@ -780,15 +819,69 @@ function vMarkets(){
   if(!list.length)return '<div class="strip"><h1>The market, <em>in plain words.</em></h1><div class="facts">Market data has not been loaded for this edition.</div></div>'+'<button class="btn" data-view="briefing">Read the events</button>';
   if(S.msel&&!S.markets[S.msel])S.msel=null;
   if(!S.msel&&window.matchMedia("(min-width:881px)").matches)S.msel=list[0].id;
-  var groups=MGROUPS.map(function(g){var ms=list.filter(function(m){return m.group===g});return ms.length?'<section class="mgroup"><h4>'+esc(g)+'</h4><div class="mgrid">'+ms.map(mTile).join("")+"</div></section>":""}).join("");
+  var mine=watched().map(function(id){var m=S.markets[id];m.id=id;return m});
+  var groups=(mine.length?'<section class="mgroup mine"><h4>My list</h4><div class="mgrid">'+mine.map(mTile).join("")+"</div></section>":"")+MGROUPS.map(function(g){var ms=list.filter(function(m){return m.group===g});return ms.length?'<section class="mgroup"><h4>'+esc(g)+'</h4><div class="mgrid">'+ms.map(mTile).join("")+"</div></section>":""}).join("");
   var soon=checkpoints().filter(function(c){return c.w.due&&stOf(c.w)==="open"&&!c.b.private}).sort(function(a,b){return String(a.w.due).localeCompare(String(b.w.due))});
   var seen={};soon=soon.filter(function(c){var k=c.w.due+"|"+c.w.text;if(seen[k])return false;seen[k]=1;return true}).slice(0,5);
   var latest=all().filter(function(b){return !b.private}).slice(0,3);
   return mHero()+
     '<div class="desk mdesk'+(S.msel?" open":"")+'"><div class="rail">'+groups+"</div><div class=\"paperwrap\"><button class=\"btn ghost back\" id=\"mback\">← All markets</button>"+mDetail(S.msel&&S.markets[S.msel])+"</div></div>"+
-    '<div style="margin-top:28px">'+tryBar()+"</div>"+
-    '<div class="two"><section class="paper"><h4 class="mh">Coming up</h4>'+(soon.length?'<ul class="plain">'+soon.map(function(c){return '<li class="cp"><span class="due">'+esc(fmtDate(c.w.due))+'</span><button class="linkish" data-open="'+esc(c.b.id)+'">'+esc(c.w.text)+"</button></li>"}).join("")+"</ul>":'<p class="note">No dated follow-ups yet.</p>')+'<button class="btn ghost" data-view="checkpoints" style="margin-top:14px">All checkpoints</button></section>'+
-    '<section class="paper"><h4 class="mh">Latest events</h4><ul class="plain">'+latest.map(function(b){return '<li class="cp"><span class="due">'+esc(fmtDate(b.eventDate))+'</span><button class="linkish" data-open="'+esc(b.id)+'">'+esc(b.title)+"</button></li>"}).join("")+'</ul><button class="btn ghost" data-view="briefing" style="margin-top:14px">All events</button></section></div>';
+    mAhead()+'<div style="margin-top:28px">'+tryBar()+"</div>"+whatIf()+
+    '<div class="two one">'+'<section class="paper"><h4 class="mh">Latest events</h4><ul class="plain">'+latest.map(function(b){return '<li class="cp"><span class="due">'+esc(fmtDate(b.eventDate))+'</span><button class="linkish" data-open="'+esc(b.id)+'">'+esc(b.title)+"</button></li>"}).join("")+'</ul><button class="btn ghost" data-view="briefing" style="margin-top:14px">All events</button></section></div>';
+}
+/* ---------- My list, What if, Learn, The week ahead ---------- */
+var MHEAD={sp500:{head:"Stocks",up:"rose",down:"fell"},nasdaq:{head:"Tech stocks",up:"rose",down:"fell"},dow:{head:"The Dow",up:"rose",down:"fell"},us2y:{head:"Short-term rates",up:"climbed",down:"eased"},us10y:{head:"Long-term rates",up:"climbed",down:"eased"},us30y:{head:"30-year rates",up:"climbed",down:"eased"},eurusd:{head:"The dollar",up:"gained",down:"lost",tail:" on the euro",invert:true},usdcop:{head:"The dollar",up:"gained",down:"lost",tail:" against the peso"},brent:{head:"Oil",up:"rose",down:"fell"},btc:{head:"Bitcoin",up:"rose",down:"fell"}};
+function mClause(m){
+  var h=MHEAD[m.id]||{head:m.name,up:"rose",down:"fell"},v,num;
+  if(h.invert){var f=m.series[0][1],l=mLast(m)[1];v=l?(f/l-1)*100:0;num=Math.abs(v).toFixed(2)+"%"}
+  else{var a=mChange(m,0);v=a.v;num=Math.abs(v).toFixed(2)+(m.changeUnit==="pp"?" points":"%")}
+  return {id:m.id,lead:h.head+" "+(v>0?h.up:v<0?h.down:"held"),num:num,tail:h.tail||"",dir:mDir(v)};
+}
+function watched(){return S.watch.filter(function(id){return !!S.markets[id]})}
+function followRow(){
+  var w=watched();
+  return '<div class="follow"><span class="follow-h">'+(w.length?"Your list":"Make it yours: pick what you follow")+'</span><div class="follow-chips">'+mList().map(function(m){var on=w.indexOf(m.id)>=0;return '<button class="fchip" data-follow="'+esc(m.id)+'" aria-pressed="'+on+'">'+(on?"✓ ":"+ ")+esc((MHEAD[m.id]&&m.kind!=="stat"?m.name:m.name))+"</button>"}).join("")+"</div></div>";
+}
+var WI={US10Y:{label:"the 10-year Treasury yield",min:-2,max:2,step:0.05,def:0.25,unit:"pp"},CRUDE:{label:"crude oil",min:-30,max:30,step:1,def:10,unit:"%"},WHEAT:{label:"wheat futures",min:-30,max:30,step:1,def:10,unit:"%"},US_CPI:{label:"consumer prices over a year",min:-2,max:10,step:0.1,def:3,unit:"%"},US_PPI:{label:"producer prices over a year",min:-2,max:10,step:0.1,def:3,unit:"%"}};
+function wiSpec(){if(!KINDS[S.wiKind])S.wiKind="fixed_borrowing";return WI[KINDS[S.wiKind].driver]}
+function wiMove(){var sp=wiSpec(),v=Number(S.wiMove);if(S.wiMove===null||S.wiMove===""||!isFinite(v))v=sp.def;return Math.max(sp.min,Math.min(sp.max,v))}
+function wiOut(){
+  var sp=wiSpec(),k=KINDS[S.wiKind],mv=wiMove(),amt=Number(S.wiAmount),ok=isFinite(amt)&&amt>0&&amt<=1e12,unit=sp.unit==="pp"?" percentage points":"%";
+  var moveTxt="If "+sp.label+" moved "+(mv>0?"+":mv<0?"−":"")+Math.abs(mv).toFixed(sp.step<0.1?2:sp.step<1?1:0)+(sp.unit==="pp"?" points":"%");
+  if(!ok)return '<p class="try-move">'+esc(moveTxt)+'</p><p class="note">Type an amount to see the line.</p>';
+  if(!mv)return '<p class="try-move">'+esc(moveTxt)+'</p><p class="note">Move the slider to try a scenario.</p>';
+  var imp=amt*mv/100,up=imp>0;
+  return '<p class="try-result"><b class="'+(up?"up":"down")+'">'+esc(signed(imp))+'</b><span> '+esc(k.per)+'</span></p><p class="try-formula">'+esc(money(amt))+" × "+esc(Math.abs(mv).toFixed(sp.step<0.1?2:sp.step<1?1:0))+unit+", if "+esc(k.assume)+'.</p><p class="try-move">'+esc(moveTxt)+'. A move you chose, not one that happened.</p><p class="note">'+esc(k.limit)+" A scenario, not a forecast, a quote or advice. Worked out on this page; nothing is sent anywhere.</p>";
+}
+function whatIf(){
+  var sp=wiSpec();
+  return '<section class="trybar whatif" aria-labelledby="wi-h"><div><h2 id="wi-h">What if…</h2><p class="note">Choose a move and see what it would be worth against an amount of yours. You set the scenario; SignalPoint only does the arithmetic.</p><div class="row" style="margin-top:14px"><label class="sr" for="wi-kind">Kind of exposure</label><select id="wi-kind" class="search">'+Object.keys(KINDS).map(function(k){return '<option value="'+k+'"'+(k===S.wiKind?" selected":"")+">"+esc(KINDS[k].label)+"</option>"}).join("")+'</select><label class="sr" for="wi-amount">Amount in US dollars</label><input class="search" id="wi-amount" type="number" min="1" step="any" inputmode="decimal" placeholder="Amount in USD" value="'+esc(S.wiAmount)+'"></div>'+
+    '<label class="wi-l" for="wi-range">How far '+esc(sp.label)+' moves</label><input id="wi-range" type="range" min="'+sp.min+'" max="'+sp.max+'" step="'+sp.step+'" value="'+wiMove()+'"><div class="mrow"><span>'+sp.min+(sp.unit==="pp"?" pts":"%")+"</span><span>+"+sp.max+(sp.unit==="pp"?" pts":"%")+'</span></div></div><div id="wi-out" aria-live="polite">'+wiOut()+"</div></section>";
+}
+var LESSONS=[
+ {id:"index",title:"What a stock index tells you",min:2,markets:["sp500","nasdaq","dow"],steps:["A stock index is one number that summarises the prices of many companies at once. The S&P 500 follows 500 large US companies; the Dow follows 30; the Nasdaq Composite leans toward technology.","When an index rises 1%, the companies in it are worth about 1% more in total than the day before. Bigger companies count for more in most indexes, so a few giants can move the whole number.","A fund that tracks an index moves almost exactly with it. That is why one day's change says little, and why the direction over months and years is what a long-term saver actually experiences."]},
+ {id:"yields",title:"Yields, and why bond prices move the other way",min:3,markets:["us10y","us2y","us30y"],steps:["A bond is a loan to a government or company. Its yield is the yearly return a buyer gets at today's price. The US Treasury publishes these yields every working day.","A bond pays fixed amounts. If new bonds start paying more, older bonds paying less become less attractive, so their price falls until their yield matches. Yields up means existing bond prices down, and the reverse.","The 2-year yield follows what investors expect the central bank to do soon. The 10-year is the reference many long loans are priced from, with a margin on top. It is a reference, never the rate on your own loan."]},
+ {id:"fed",title:"What the Federal Reserve's rate does",min:2,markets:["fed"],steps:["The Federal Reserve sets a target range for the overnight rate at which banks lend to each other. Eight scheduled meetings a year decide whether to raise it, lower it or hold.","Banks pass that cost on. When the range rises, variable-rate loans and new credit get more expensive and savings accounts tend to pay more. When it falls, the opposite.","Markets move on what they expect before the meeting, so the decision itself often matters less than the surprise. The statement and the vote count show how close the committee was to doing something else."]},
+ {id:"inflation",title:"Inflation: reading CPI and PPI",min:3,markets:["cpi","ppi"],steps:["The Consumer Price Index measures what a typical basket of goods and services costs households. The Producer Price Index measures what producers receive for their output.","Each month's release gives the change from the month before. A monthly +0.4% is not 0.4% a year: twelve months like that would add up to roughly 5%. Always check whether a figure is monthly or over twelve months.","“Core” inflation leaves out food and energy because they swing the most. Central banks watch it to judge the underlying trend. These are averages; your own costs can move very differently."]},
+ {id:"fx",title:"Exchange rates and a stronger dollar",min:2,markets:["eurusd","usdcop"],steps:["An exchange rate is the price of one currency in another. “Euro in US dollars 1.10” means one euro costs $1.10. “US dollar in Colombian pesos 3,300” means one dollar costs 3,300 pesos.","Watch which way the pair is quoted. If euro-in-dollars falls, the dollar got stronger. If dollar-in-pesos rises, the dollar also got stronger. Same event, opposite directions on the screen.","A stronger dollar makes anything priced in dollars cost more in other currencies: imports, travel, dollar debts. People paid in dollars receive more local currency. Higher US interest rates tend to pull the dollar up, though not reliably."]},
+ {id:"oil",title:"Oil and what its price reaches",min:2,markets:["brent"],steps:["Brent is the crude oil benchmark most of the world outside the US is priced from. Its price reacts fast to supply news: conflicts, production decisions, inventories.","Fuel, freight and air fares follow crude with a delay and only in part, because taxes, refining and contracts sit in between. A one-day jump often reverses before it reaches anyone's bill.","A sustained move is different. It reaches transport costs first, then the price of goods that have to be moved, and shows up in inflation figures a few months later."]}
+];
+function lessonFor(mid){for(var i=0;i<LESSONS.length;i++)if(LESSONS[i].markets.indexOf(mid)>=0)return LESSONS[i];return null}
+function learnedCount(){return LESSONS.filter(function(l){return S.learned[l.id]}).length}
+function vLearn(){
+  var done=learnedCount();
+  return '<div class="strip lhead"><h1>Learn while you look.</h1><div class="facts">Six short lessons, each tied to a number on the board. Read one, then open the market it explains.</div><div class="lprog" role="img" aria-label="'+done+" of "+LESSONS.length+' lessons understood"><span style="width:'+(done/LESSONS.length*100)+'%"></span></div><p class="note">'+done+" of "+LESSONS.length+" understood. The lessons are free in this pilot. Longer guided paths are an idea for the paid plans, not something that exists yet.</p></div>"+
+    '<div class="lessons">'+LESSONS.map(function(l,i){var open=S.lesson===l.id,ok=!!S.learned[l.id];
+      return '<section class="lesson'+(open?" open":"")+(ok?" ok":"")+'"><button class="lesson-h" data-lesson="'+l.id+'" aria-expanded="'+open+'"><span class="lnum">'+(ok?"✓":i+1)+'</span><span class="ltitle">'+esc(l.title)+'</span><span class="lmin">'+l.min+" min</span></button>"+
+        (open?'<div class="lesson-b"><ol>'+l.steps.map(function(s){return "<li>"+esc(s)+"</li>"}).join("")+'</ol><div class="row"><button class="btn" data-learned="'+l.id+'">'+(ok?"Marked as understood":"I understand this")+"</button>"+l.markets.filter(function(id){return !!S.markets[id]}).map(function(id){return '<button class="btn ghost" data-market="'+esc(id)+'">See '+esc(S.markets[id].name)+"</button>"}).join("")+"</div></div>":"")+"</section>"}).join("")+"</div>";
+}
+function dayDiff(iso){var d=new Date(iso+"T12:00:00Z"),n=new Date();n=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate(),12);return Math.round((d-n)/864e5)}
+function mAhead(){
+  var soon=checkpoints().filter(function(c){return c.w.due&&stOf(c.w)==="open"&&!c.b.private}).sort(function(a,b){return String(a.w.due).localeCompare(String(b.w.due))});
+  var seen={};soon=soon.filter(function(c){var k=c.w.due+"|"+String(c.w.text).toLowerCase().split(/\s+/).slice(0,2).join(" ");if(seen[k])return false;seen[k]=1;return true}).slice(0,6);
+  if(!soon.length)return"";
+  return '<section class="ahead" aria-labelledby="ah-h"><h2 id="ah-h">What is coming</h2><div class="ahead-grid">'+soon.map(function(c){var dd=dayDiff(c.w.due),d=new Date(c.w.due+"T12:00:00Z"),when=dd===0?"today":dd===1?"tomorrow":dd>1?"in "+dd+" days":"date passed, not yet confirmed";
+    return '<button class="ahead-i" data-open="'+esc(c.b.id)+'"><span class="ah-d"><b>'+d.getUTCDate()+"</b>"+esc(d.toLocaleDateString("en-US",{month:"short",timeZone:"UTC"}))+'</span><span class="ah-t">'+esc(c.w.text)+'</span><span class="ah-w">'+esc(when)+"</span></button>"}).join("")+"</div></section>";
 }
 function hasProfile(){return !!(S.desc.trim()||S.wl.length)}
 var DIR={helps:["fav","▲","Helps"],hurts:["adv","▼","Hurts"],mixed:["mix","◆","Mixed"],unclear:["und","○","Unclear"]};
@@ -892,7 +985,7 @@ function vMethod(){
     '<section class="paper"><h4>Updates and limits</h4><p>'+((S.auto&&S.auto.active===true)?'The scheduled task checks for updates; the briefing shows the latest recorded run.':'Automatic ingestion is inactive. News currently arrives after a manual review run.')+'</p><p>We add material events with sources, not a fixed quota. Check the ingestion status for stale data or partial coverage. This is not a complete or real-time market feed.</p><p>AI can make mistakes. SignalPoint gives no investment advice, trading recommendations, price targets or confidence scores. Planned subscriptions are hypotheses; the pilot has no payment flow.</p></section></div>';
 }
 function render(){
-  var v={markets:vMarkets,briefing:vBriefing,checkpoints:vCheckpoints,exposure:vExposure,method:vMethod}[S.view]();
+  var v={markets:vMarkets,briefing:vBriefing,checkpoints:vCheckpoints,exposure:vExposure,learn:vLearn,method:vMethod}[S.view]();
   var keep=document.activeElement&&document.activeElement.id,pos=keep&&document.activeElement.selectionStart;
   $("view").innerHTML=v;$("view").className="wrap"+(S.anim==="view"?" enter":S.anim==="paper"?" enter-paper":"");S.anim=null;
   if(keep&&$(keep)){$(keep).focus();try{$(keep).setSelectionRange(pos,pos)}catch(e){}}
@@ -900,6 +993,7 @@ function render(){
   $("n-briefs").textContent=S.briefs.length||"";
   $("n-open").textContent=checkpoints().filter(function(c){return stOf(c.w)==="open"}).length||"";
   $("n-wl").textContent=S.wl.length||"";
+  if($("n-learn"))$("n-learn").textContent=learnedCount()?learnedCount()+"/"+LESSONS.length:"";
 }
 function go(v){S.anim="view";S.view=VIEWS.indexOf(v)>=0?v:"briefing";if(location.hash.slice(1)!==S.view){try{location.hash=S.view}catch(e){}}render();window.scrollTo(0,0)}
 
@@ -915,6 +1009,9 @@ document.addEventListener("click",function(e){
   if(t.id==="back"){S.sel=null;S.selectionTouched=false;return render()}
   if(t.dataset.rm){var gone=S.wl.splice(+t.dataset.rm,1)[0];if(gone)S.gone.terms.push(gone.toLowerCase());if(!S.wl.length)S.mine=false;invalidateReadings();persist();return render()}
   if(t.id==="try-keep"){var ta=Number(S.tryAmount);if(S.personalReady&&KINDS[S.tryKind]&&isFinite(ta)&&ta>0&&ta<=1e12&&S.items.length<12){S.items.push({id:"i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind:S.tryKind,amount:ta});S.tryAmount="";persist();return go("exposure")}return}
+  if(t.dataset.follow){var fi=S.watch.indexOf(t.dataset.follow);if(fi>=0)S.watch.splice(fi,1);else if(S.markets[t.dataset.follow]&&S.watch.length<13)S.watch.push(t.dataset.follow);persist();return render()}
+  if(t.dataset.lesson){S.lesson=S.view==="learn"&&S.lesson===t.dataset.lesson?null:t.dataset.lesson;if(S.view!=="learn")return go("learn");return render()}
+  if(t.dataset.learned){if(S.learned[t.dataset.learned])delete S.learned[t.dataset.learned];else S.learned[t.dataset.learned]=true;persist();return render()}
   if(t.dataset.market){S.msel=t.dataset.market;S.mq="";if(S.view!=="markets")return go("markets");S.anim="paper";render();if(!window.matchMedia("(min-width:881px)").matches)window.scrollTo(0,0);return}
   if(t.id==="mback"){S.msel=null;return render()}
   if(t.dataset.trykind){if(KINDS[t.dataset.trykind])S.tryKind=t.dataset.trykind;S.view="markets";render();var tb=document.querySelector(".trybar");if(tb&&tb.scrollIntoView)tb.scrollIntoView({block:"center"});var ta2=$("try-amount");if(ta2)ta2.focus();return}
@@ -924,12 +1021,14 @@ document.addEventListener("click",function(e){
   if(t.id==="desc-save")return saveProfile();
 });
 document.addEventListener("input",function(e){
+  if(e.target.id==="wi-amount"){S.wiAmount=e.target.value;var w1=$("wi-out");if(w1)w1.innerHTML=wiOut();return}
+  if(e.target.id==="wi-range"){S.wiMove=e.target.value;var w2=$("wi-out");if(w2)w2.innerHTML=wiOut();return}
   if(e.target.id==="mq"){S.mq=e.target.value;var mo=$("mq-out");if(mo)mo.innerHTML=mSearch();return}
   if(e.target.id==="try-amount"){S.tryAmount=e.target.value;var o=$("try-out");if(o)o.innerHTML=tryOut();return}
   if(e.target.id==="q"){S.q=e.target.value;S.sel=null;S.selectionTouched=false;render()}
   if(e.target.id==="desc")S.descDraft=e.target.value;
 });
-document.addEventListener("change",function(e){if(e.target.id==="try-kind"){S.tryKind=e.target.value;var o=$("try-out");if(o)o.innerHTML=tryOut()}});
+document.addEventListener("change",function(e){if(e.target.id==="wi-kind"){S.wiKind=e.target.value;S.wiMove=null;return render()}if(e.target.id==="try-kind"){S.tryKind=e.target.value;var o=$("try-out");if(o)o.innerHTML=tryOut()}});
 document.addEventListener("pointermove",function(e){
   var c=e.target&&e.target.closest?e.target.closest(".mchart[data-chart]"):null;
   if(!c){var open=document.querySelectorAll(".mcur:not([hidden])");for(var i=0;i<open.length;i++){open[i].hidden=true;var rd=open[i].parentNode.querySelector(".mread");if(rd)rd.textContent=""}return}
@@ -956,7 +1055,7 @@ window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(
 var LS="signalpoint.me";
 var writeChain=Promise.resolve(),writeSequence=0;
 function refreshSaveNote(){var note=$("save-note");if(note){note.textContent=S.saveNote;note.className="note"+(/^Could not/.test(S.saveNote)?" problem":"")}}
-function stateBody(){return {items:S.items.slice(0,12),wl:S.wl.slice(0,30),saved:S.saved.slice(0,40),desc:S.desc,descUpdatedAt:S.descUpdatedAt||0,example:S.example||"",lens:S.lens,gone:{terms:S.gone.terms.slice(-100),briefs:S.gone.briefs.slice(-100)}}}
+function stateBody(){return {watch:S.watch.slice(0,13),learned:S.learned,items:S.items.slice(0,12),wl:S.wl.slice(0,30),saved:S.saved.slice(0,40),desc:S.desc,descUpdatedAt:S.descUpdatedAt||0,example:S.example||"",lens:S.lens,gone:{terms:S.gone.terms.slice(-100),briefs:S.gone.briefs.slice(-100)}}}
 function persist(){
   var body=JSON.parse(JSON.stringify(stateBody())),localOK=false;
   try{if(LSKEY){localStorage.setItem(LSKEY,JSON.stringify(body));localOK=true}}catch(e){S.saveNote="Could not save on this device. Keep this page open until your account confirms the save."}
@@ -987,6 +1086,8 @@ function adopt(body){
       });
     }
   }
+  if(Array.isArray(body.watch))S.watch=body.watch.filter(function(x){return typeof x==="string"&&/^[a-z0-9]{1,24}$/.test(x)}).slice(0,13);
+  if(body.learned&&typeof body.learned==="object"){var lr={};LESSONS.forEach(function(l){if(body.learned[l.id]===true)lr[l.id]=true});S.learned=lr}
   if(Array.isArray(body.items))S.items=body.items.filter(validItem).slice(0,12).map(function(x){return {id:x.id,kind:x.kind,amount:x.amount}});
   if(Array.isArray(body.wl))S.wl=body.wl.filter(function(x){return typeof x==="string"&&x.trim()}).slice(0,30);
   if(Array.isArray(body.saved))S.saved=body.saved.filter(function(b){return b&&typeof b.id==="string"&&b.title}).slice(0,40).map(function(b){b=JSON.parse(JSON.stringify(b));b.private=true;return b});
